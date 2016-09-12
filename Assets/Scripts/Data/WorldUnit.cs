@@ -1,4 +1,5 @@
-﻿public class WorldUnit {
+﻿public class WorldUnit
+{
     public int offsetX;
     public int offsetY;
 
@@ -7,10 +8,7 @@
     /// </summary>
     public int state;
 
-    public UnityEngine.GameObject asset;
-
-
-    public WorldUnit(int _ox, int _oy,int _state)
+    public WorldUnit (int _ox, int _oy, int _state)
     {
         this.offsetX = _ox;
         this.offsetY = _oy;
