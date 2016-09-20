@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
+using TreaslandLib.Core;
 
 public class Action : MonoBehaviour
 {
+    public Listener onActionEnd = null;
+
     private bool _isRunning = false;
 
     protected Transform currTrans;
