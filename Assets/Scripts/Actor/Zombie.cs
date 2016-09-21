@@ -47,7 +47,6 @@ public class Zombie : MonoBehaviour {
         // Trigger path finding
         if (this.currAction != walking && !isSearchingPath)
         {
-            Debug.Log("Searching Path...");
             this.isSearchingPath = true;
             Vector3 targetPos = GameWorldManager.GetInstance().GetRandomTargetPos(this.transform.position);
             AStarAgent.GetInstance().AddPathSearchTask(this.transform.position, targetPos, this.OnAStarFoundWay);
@@ -57,7 +56,6 @@ public class Zombie : MonoBehaviour {
 
     void OnAStarFoundWay(List<Point> way)
     {
-        Debug.Log("Way Found!");
         this.walking.way = way;
         SetAction(this.walking);
         this.isSearchingPath = false;
