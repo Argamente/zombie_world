@@ -6,20 +6,13 @@ using TreaslandLib.Core;
 
 public class ActionForSpecificWay : Action {
 
-    private List<Point> way = null;
-    private float unitSize = 0.0f;
+    public List<Point> way = null;
     private float speed = 1.0f;
     private Vector3 nextPos = Vector3.zero;
     private float arrivedValue = 0.2f;
     private int wayPointIndex = 0;
     private bool isFinishedWay = false;
 
-
-    //public void SetWay(List<Point> _way, float _unitSize)
-    //{
-    //    this.way = _way;
-    //    this.unitSize = _unitSize;
-    //}
 
 
     public override void StartAction()
@@ -57,7 +50,6 @@ public class ActionForSpecificWay : Action {
         {
             return;
         }
-
         if (IsArrivedPos(nextPos))
         {
             ++this.wayPointIndex;
@@ -87,6 +79,8 @@ public class ActionForSpecificWay : Action {
 
     private bool IsArrivedPos(Vector3 pos)
     {
+        float diffX = Mathf.Abs(pos.x - this.currTrans.position.x);
+        float diffY = Mathf.Abs(pos.y - this.currTrans.position.y);
         if(Mathf.Abs(pos.x - this.currTrans.position.x) <= arrivedValue &&
             Mathf.Abs(pos.y - this.currTrans.position.y) <= arrivedValue)
         {
@@ -98,10 +92,23 @@ public class ActionForSpecificWay : Action {
 
     private Vector3 ConstructureWorldPosFromWayPoint(Point point)
     {
-        float x = point.x * this.unitSize;
-        float y = point.y * this.unitSize;
+        float x = point.x * Constants.unitWorldSize;
+        float y = point.y * Constants.unitWorldSize;
         Vector3 vec = new Vector3(x, y, 0);
         return vec;
+    }
+
+    private void DisplayWay()
+    {
+        if(this.way != null)
+        {
+            Debug.Log("===========================");
+            for(int i = 0; i < this.way.Count; ++i)
+            {
+                Debug.Log(this.way[i].x + "  " + this.way[i].y);
+            }
+            Debug.Log("===========================");
+        }
     }
 
 }

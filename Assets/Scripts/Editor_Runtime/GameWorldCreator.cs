@@ -8,6 +8,15 @@ using System.IO;
 
 public class GameWorldCreator : MonoBehaviour
 {
+
+    private static GameWorldCreator _instance = null;
+    public static GameWorldCreator GetInstance()
+    {
+        return _instance;
+    }
+
+
+
     #region UI Component
 
     public Text m_MousePos;
@@ -45,7 +54,7 @@ public class GameWorldCreator : MonoBehaviour
     /// <summary>
     /// x 外层字典的Key, y 为内层字典的key, 内层字典的value 为 x,y的单元状态
     /// </summary>
-    private Dictionary<int, Dictionary<int, WorldUnit>> worldMap = new Dictionary<int, Dictionary<int, WorldUnit>> ();
+    public Dictionary<int, Dictionary<int, object>> worldMap = new Dictionary<int, Dictionary<int, object>> ();
     private Dictionary<int,Dictionary<int, GameObject>> worldAssetsMap = new Dictionary<int, Dictionary<int, GameObject>> ();
 
     // 当前鼠标所在单元相对于世界（0，0）位置的偏移单元数
@@ -57,6 +66,8 @@ public class GameWorldCreator : MonoBehaviour
 
     void Awake ()
     {
+        _instance = this;
+
         this.mainCam = Camera.main;
         this.mainCamTrans = this.mainCam.transform;
 
@@ -82,6 +93,27 @@ public class GameWorldCreator : MonoBehaviour
 
         m_MousePos.text = "X: " + offsetX + "    Y: " + offsetY;
 
+        #region 放僵尸
+        if(Input.GetKeyDown(KeyCode.Z))
+        {
+            worldPos.x = offsetX * unitWorldSize;
+            worldPos.y = offsetY * unitWorldSize;
+            worldPos.z = 0;
+
+            if (!worldMap.ContainsKey(offsetX) || !worldMap[offsetX].ContainsKey(offsetY))
+            {
+
+                // create world unit asset
+                GameObject obj = Instantiate(Resources.Load("Zombies/Zombie001")) as GameObject;
+                obj.transform.position = worldPos;
+            }
+            return;
+        }
+
+        #endregion
+
+
+
         #region 世界创造相关
         // 创造一个世界单元
         if (Input.GetMouseButton (0))
@@ -95,7 +127,7 @@ public class GameWorldCreator : MonoBehaviour
                 if (!worldMap.ContainsKey (offsetX))
                 {
                     // 创建存储节
-                    worldMap.Add (offsetX, new Dictionary<int, WorldUnit> ());
+                    worldMap.Add (offsetX, new Dictionary<int, object> ());
                     worldAssetsMap.Add (offsetX, new Dictionary<int,GameObject> ());
                 }
 
@@ -118,7 +150,7 @@ public class GameWorldCreator : MonoBehaviour
             if (worldMap.ContainsKey (offsetX) && worldMap [offsetX].ContainsKey (offsetY))
             {
                 // remove world unit from world map
-                WorldUnit unit = worldMap [offsetX] [offsetY];
+                WorldUnit unit = (WorldUnit)worldMap [offsetX] [offsetY];
                 worldMap [offsetX].Remove (offsetY);
 
                 // remove world unit asset from world asset map
@@ -248,6 +280,14 @@ public class GameWorldCreator : MonoBehaviour
     }
 
 
+    public bool IsAvaliableOffset(int offsetX, int offsetY)
+    {
+        if (!worldMap.ContainsKey(offsetX) || !worldMap[offsetX].ContainsKey(offsetY))
+        {
+            return true;
+        }
+        return false;
+    }
 
 
     // load world map from file
@@ -263,7 +303,7 @@ public class GameWorldCreator : MonoBehaviour
 
         try
         {
-            this.worldMap = JsonConvert.DeserializeObject<Dictionary<int, Dictionary<int,WorldUnit>>> (worldMapStr);
+            this.worldMap = JsonConvert.DeserializeObject<Dictionary<int, Dictionary<int,object>>> (worldMapStr);
         }
         catch (System.Exception e)
         {
@@ -283,9 +323,9 @@ public class GameWorldCreator : MonoBehaviour
 
     private void InitGameWorldFromWorldMap ()
     {
-        foreach (KeyValuePair<int, Dictionary<int, WorldUnit>> kv in worldMap)
+        foreach (KeyValuePair<int, Dictionary<int, object>> kv in worldMap)
         {
-            foreach (KeyValuePair<int, WorldUnit> subKv in kv.Value)
+            foreach (KeyValuePair<int, object> subKv in kv.Value)
             {
                 if (this.worldAssetsMap.ContainsKey (kv.Key) == false)
                 {
@@ -324,11 +364,11 @@ public class GameWorldCreator : MonoBehaviour
     private void OnSave_WithList ()
     {
         List<WorldUnit> worldList = new List<WorldUnit> ();
-        foreach (KeyValuePair<int,  Dictionary<int,WorldUnit>> kv in worldMap)
+        foreach (KeyValuePair<int,  Dictionary<int,object>> kv in worldMap)
         {
-            foreach (KeyValuePair<int,WorldUnit> unitKv in kv.Value)
+            foreach (KeyValuePair<int,object> unitKv in kv.Value)
             {
-                WorldUnit unit = unitKv.Value;
+                WorldUnit unit = (WorldUnit)unitKv.Value;
                 worldList.Add (unit);
             }
         }
@@ -348,7 +388,7 @@ public class GameWorldCreator : MonoBehaviour
     private void OnClearAll ()
     {
         // first clear world map data
-        foreach (KeyValuePair<int,Dictionary<int,WorldUnit>> kv in worldMap)
+        foreach (KeyValuePair<int,Dictionary<int,object>> kv in worldMap)
         {
             kv.Value.Clear ();
         }
