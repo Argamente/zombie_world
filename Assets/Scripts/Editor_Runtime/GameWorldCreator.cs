@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Newtonsoft.Json;
 using System.IO;
+using TreaslandLib.Unity3D.Core;
+using TreaslandLib.Unity3D.Utils;
 
 public class GameWorldCreator : MonoBehaviour
 {
@@ -66,6 +68,8 @@ public class GameWorldCreator : MonoBehaviour
 
     void Awake ()
     {
+        App.Init(null, null);
+        
         _instance = this;
 
         this.mainCam = Camera.main;
